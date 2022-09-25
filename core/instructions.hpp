@@ -316,31 +316,14 @@ void CU::cmp(const std::vector<std::string>& line) {
     int rhs_index = std::stoi(line[2].substr(1));
     int lhs_value = registers[lhs_index].get_value();
     int rhs_value = registers[rhs_index].get_value();    
-    std::ifstream file;
-    file.open("file.fasm");
-    if (!file.is_open()) {
-        exit(0);
-    }
-    auto all_file = get_labels_from_file(file);
-    std::string token{};
-    while (true) {
-        file >> token;
-        if (token[0] == '.') {
-            break;
-        }
-    }
-    file >> token;
-    std::string label_name = token;
-    std::cout << label_name << std::endl;
+    check_cmp();
 }
 
-std::vector<std::string> CU::get_labels_from_file(std::ifstream& file) {
-    std::vector<std::string> all_file;
-    std::string token;
-    while (file >> token) {
-        all_file.push_back(token);
-    }
-    return all_file;
+void CU::check_cmp() {
+    std::ifstream file;
+    file.open("file.fasm");
+    std::vector<std::string> text;
+    
 }
 
 #endif // INSTRUCTIONS_HPP

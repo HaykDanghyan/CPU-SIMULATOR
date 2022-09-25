@@ -9,7 +9,8 @@ private:
     static void cmp(const std::vector<std::string>&);
 
 private:
-    static std::vector<std::string> get_labels_from_file(std::ifstream& file);
+    static std::vector<std::string> get_labels_from_file(std::ifstream&);
+    static void check_cmp();
 };
 
 #endif // CU_H
