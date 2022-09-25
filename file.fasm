@@ -1,5 +1,0 @@
-mov r0 10
-mov r1 20
-cmp r0 r1
-jg .barev
-print r1
