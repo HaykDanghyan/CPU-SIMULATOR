@@ -42,6 +42,7 @@ int get_opcode_index(const std::string& token) {
     if (token == "cmp") {
         return 12;
     }
+
     return -1;
 }
 

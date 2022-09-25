@@ -8,10 +8,16 @@
 #include "alu.h"
 #include "cu.h"
 
+static ulong line_counter = 1;
+
+#define FLAG 10
+
 std::vector<std::string> line;
 std::vector<Register> registers;
 
 class CPU {
+    friend class CU;
+    friend class Register;
 public:
     static void run();
 

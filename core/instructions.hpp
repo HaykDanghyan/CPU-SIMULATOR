@@ -108,6 +108,7 @@ void ALU::mov(const std::vector<std::string>& line) {
             registers[reg_number].set_value(value);
         }
     }
+    ++line_counter;
 }
 
 void ALU::add(const std::vector<std::string>& line) {
@@ -128,6 +129,7 @@ void ALU::add(const std::vector<std::string>& line) {
             registers[reg_number].set_value(value + current_value);
         }
     }
+    ++line_counter;
 }
 
 void ALU::sub(const std::vector<std::string>& line) {
@@ -148,6 +150,7 @@ void ALU::sub(const std::vector<std::string>& line) {
             registers[reg_number].set_value(current_value - value);
         }
     }
+    ++line_counter;
 }
 
 void ALU::mul(const std::vector<std::string>& line) {
@@ -168,6 +171,7 @@ void ALU::mul(const std::vector<std::string>& line) {
             registers[reg_number].set_value(value * current_value);
         }
     }
+    ++line_counter;
 }
 
 void ALU::div(const std::vector<std::string>& line) {
@@ -196,6 +200,7 @@ void ALU::div(const std::vector<std::string>& line) {
             registers[reg_number].set_value(current_value / value);
         }
     }
+    ++line_counter;
 }
 
 void ALU::inc(const std::vector<std::string>& line) {
@@ -206,6 +211,7 @@ void ALU::inc(const std::vector<std::string>& line) {
     int reg_number = std::stoi(line[1].substr(1));
     int current_value = registers[reg_number].get_value();
     registers[reg_number].set_value(++current_value);
+    ++line_counter;
 }
 
 void ALU::dec(const std::vector<std::string>& line) {
@@ -216,6 +222,7 @@ void ALU::dec(const std::vector<std::string>& line) {
     int reg_number = std::stoi(line[1].substr(1));
     int current_value = registers[reg_number].get_value();
     registers[reg_number].set_value(--current_value);
+    ++line_counter;
 }
 
 void ALU::logic_and(const std::vector<std::string>& line) {
@@ -236,6 +243,7 @@ void ALU::logic_and(const std::vector<std::string>& line) {
             registers[reg_number].set_value(current_value & value);
         }
     }
+    ++line_counter;
 }
 
 void ALU::logic_or(const std::vector<std::string>& line) {
@@ -256,6 +264,7 @@ void ALU::logic_or(const std::vector<std::string>& line) {
             registers[reg_number].set_value(current_value | value);
         }
     }
+    ++line_counter;
 }
 
 void ALU::logic_not(const std::vector<std::string>& line) {
@@ -267,7 +276,7 @@ void ALU::logic_not(const std::vector<std::string>& line) {
         int current_value = registers[reg_number].get_value(); 
         registers[reg_number].set_value(~current_value);
     }
-
+    ++line_counter;
 }
 
 void ALU::logic_xor(const std::vector<std::string>& line) {
@@ -288,14 +297,17 @@ void ALU::logic_xor(const std::vector<std::string>& line) {
             registers[reg_number].set_value(current_value ^ value);
         }
     }
+    ++line_counter;
 }
 
 void CPU::initialize_regisers() {
-    registers.resize(10);
+    registers.resize(11);
     for (int i = 0; i < registers.size(); ++i) {
         registers[i].set_name("r" + std::to_string(i));
         registers[i].set_value(0);
     }
+    registers[registers.size() - 1].set_name("flag");
+    registers[registers.size() - 1].set_value(0);    
 }
 
 void CPU::print(const std::vector<std::string>& line) {
@@ -305,6 +317,7 @@ void CPU::print(const std::vector<std::string>& line) {
     }
     int reg_number = std::stoi(line[1].substr(1));
     std::cout << registers[reg_number].get_value() << std::endl;
+    ++line_counter;
 }
 
 void CU::cmp(const std::vector<std::string>& line) {
@@ -316,14 +329,40 @@ void CU::cmp(const std::vector<std::string>& line) {
     int rhs_index = std::stoi(line[2].substr(1));
     int lhs_value = registers[lhs_index].get_value();
     int rhs_value = registers[rhs_index].get_value();    
-    check_cmp();
+    if (lhs_value - rhs_value > 0) {
+        registers[FLAG].set_value(1);
+    } else if (lhs_value - rhs_value < 0) {
+        registers[FLAG].set_value(-1);
+    } else {
+        registers[FLAG].set_value(0);
+    }
+    ++line_counter;
+    get_jmp(lhs_value, rhs_value);
 }
 
-void CU::check_cmp() {
+void CU::get_jmp(int lhs, int rhs) {
     std::ifstream file;
     file.open("file.fasm");
-    std::vector<std::string> text;
-    
+    int tmp = line_counter;
+    std::string jmp;
+    while (tmp--) { 
+        std::getline(file, jmp);
+    }
+    get_type_of_jmp(jmp, lhs, rhs);
+}
+
+void CU::get_type_of_jmp(const std::string& line, int lhs, int rhs) {
+    int pos = line.find(' ');
+    std::string jmp_type = line.substr(0, pos);
+    if (jmp_type == "jg") {
+        if (registers[FLAG].get_value() != 1) {
+            return;
+        } else {
+            pos = line.find('.');
+            std::string label_name = line.substr(pos, line.length() - 1);
+            std::cout << label_name << std::endl;
+        }
+    }
 }
 
 #endif // INSTRUCTIONS_HPP
